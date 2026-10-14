@@ -134,9 +134,9 @@
         statusEl.innerText = `正在讀取 ${currentRoute} 到站時間...`;
 
         try {
-            // 使用 allorigins.win 的 /raw 代理，並帶入時間戳記防止快取
+            // 改用 CodeTabs 代理，並加入時間戳記防止快取
             const targetUrl = `https://data.etabus.gov.hk/v1/transport/kmb/route-eta/${currentRoute}?t=${Date.now()}`;
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+            const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`;
 
             const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error(`HTTP 錯誤狀態碼: ${response.status}`);
