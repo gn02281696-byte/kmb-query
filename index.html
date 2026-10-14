@@ -125,14 +125,15 @@
         statusEl.innerText = `正在讀取 ${currentRoute} 到站時間...`;
 
         try {
-            // 使用 CORS 代理來繞過瀏覽器限制
-            const targetUrl = `https://data.etabus.gov.hk/v1/transport/kmb/route-eta/${currentRoute}`;
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+            // 使用穩定代理與正確的九巴 ETA 節點
+            const targetUrl = `https://data.etabus.gov.hk/v1/transport/kmb/eta/${currentRoute}`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
             const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error('網路回應錯誤');
 
-            const data = await response.json();
+            const wrapper = await response.json();
+            const data = JSON.parse(wrapper.contents);
             statusEl.style.display = 'none';
 
             if (!data.data || data.data.length === 0) {
