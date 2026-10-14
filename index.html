@@ -88,15 +88,6 @@
             color: #007aff;
             margin-top: 4px;
         }
-        .error-box {
-            background: #fff2f2;
-            color: #d9381e;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            word-break: break-all;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
@@ -134,12 +125,11 @@
         statusEl.innerText = `正在讀取 ${currentRoute} 到站時間...`;
 
         try {
-            // 改用 CodeTabs 代理，並加入時間戳記防止快取
-            const targetUrl = `https://data.etabus.gov.hk/v1/transport/kmb/route-eta/${currentRoute}?t=${Date.now()}`;
-            const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`;
-
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error(`HTTP 錯誤狀態碼: ${response.status}`);
+            // 直接呼叫九巴官方 API
+            const url = `https://data.etabus.gov.hk/v1/transport/kmb/route-eta/${currentRoute}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) throw new Error(`HTTP 錯誤: ${response.status}`);
 
             const data = await response.json();
             statusEl.style.display = 'none';
@@ -150,6 +140,7 @@
             }
 
             let html = '';
+            // 過濾並只顯示有提供預報時間的項目（最多顯示前 15 筆）
             const items = data.data.filter(item => item.eta).slice(0, 15);
 
             if (items.length === 0) {
@@ -177,7 +168,9 @@
             statusEl.style.display = 'none';
             listEl.innerHTML = `
                 <div style="text-align:center; color:red; font-weight:bold;">載入失敗</div>
-                <div class="error-box">錯誤原因：${err.message}</div>
+                <div style="background:#fff2f2; color:#d9381e; padding:10px; border-radius:8px; font-size:0.85rem; margin-top:10px; word-break:break-all;">
+                    原因：${err.message}
+                </div>
             `;
             console.error(err);
         }
