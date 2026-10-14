@@ -88,6 +88,15 @@
             color: #007aff;
             margin-top: 4px;
         }
+        .error-box {
+            background: #fff2f2;
+            color: #d9381e;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            word-break: break-all;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -125,15 +134,14 @@
         statusEl.innerText = `正在讀取 ${currentRoute} 到站時間...`;
 
         try {
-            // 使用穩定代理與正確的九巴 ETA 節點
+            // 改用 corsproxy.io 進行請求
             const targetUrl = `https://data.etabus.gov.hk/v1/transport/kmb/eta/${currentRoute}`;
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
             const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error('網路回應錯誤');
+            if (!response.ok) throw new Error(`HTTP 錯誤狀態碼: ${response.status}`);
 
-            const wrapper = await response.json();
-            const data = JSON.parse(wrapper.contents);
+            const data = await response.json();
             statusEl.style.display = 'none';
 
             if (!data.data || data.data.length === 0) {
@@ -142,7 +150,6 @@
             }
 
             let html = '';
-            // 過濾並只顯示有提供預報時間的項目（最多顯示前 15 筆）
             const items = data.data.filter(item => item.eta).slice(0, 15);
 
             if (items.length === 0) {
@@ -167,8 +174,11 @@
             listEl.innerHTML = html;
 
         } catch (err) {
-            statusEl.style.display = 'block';
-            statusEl.innerText = '載入失敗，請檢查網路連線或稍後再試。';
+            statusEl.style.display = 'none';
+            listEl.innerHTML = `
+                <div style="text-align:center; color:red; font-weight:bold;">載入失敗</div>
+                <div class="error-box">錯誤原因：${err.message}</div>
+            `;
             console.error(err);
         }
     }
