@@ -14,7 +14,7 @@
             color: #1c1c1e;
         }
         .card {
-            max-width: 500px;
+            max-width: 550px;
             margin: 0 auto;
             background: #ffffff;
             padding: 20px;
@@ -30,7 +30,7 @@
         .btn-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         .route-btn {
             flex: 1;
@@ -75,7 +75,7 @@
         .eta-info {
             font-weight: bold;
             font-size: 0.9rem;
-            color: #555;
+            color: #333;
         }
         .eta-time {
             font-size: 1.3rem;
@@ -84,9 +84,9 @@
             margin-top: 4px;
         }
         .eta-rmk {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 2px;
+            font-size: 0.85rem;
+            color: #007aff;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -100,9 +100,9 @@
         <button class="route-btn" id="btn73X" onclick="switchRoute('73X')">73X</button>
     </div>
 
-    <button class="refresh-btn" onclick="fetchETA()">🔄 重新整理</button>
+    <button class="refresh-btn" onclick="fetchETA()">🔄 重新整理時間</button>
 
-    <div id="status">正在更新到站時間...</div>
+    <div id="status">正在載入資料...</div>
     <div id="etaList"></div>
 </div>
 
@@ -122,12 +122,12 @@
         
         listEl.innerHTML = '';
         statusEl.style.display = 'block';
-        statusEl.innerText = `正在更新 ${currentRoute} 到站時間...`;
+        statusEl.innerText = `正在讀取 ${currentRoute} 到站時間...`;
 
         try {
-            // 加入時間戳記避免瀏覽器快取舊資料
-            const response = await fetch(`https://etabus.data.gov.hk/v1/transport/kmb/eta/${currentRoute}?t=${Date.now()}`);
-            if (!response.ok) throw new Error('網路錯誤');
+            // 使用正確的九巴官方 Route ETA API
+            const response = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/route-eta/${currentRoute}?t=${Date.now()}`);
+            if (!response.ok) throw new Error('網路回應錯誤');
 
             const data = await response.json();
             statusEl.style.display = 'none';
@@ -138,20 +138,24 @@
             }
 
             let html = '';
-            // 只取前 20 筆資料，加快顯示速度
-            const items = data.data.slice(0, 20);
+            // 過濾並只顯示有提供預報時間的項目（最多顯示前 15 筆）
+            const items = data.data.filter(item => item.eta).slice(0, 15);
+
+            if (items.length === 0) {
+                listEl.innerHTML = `<p style="text-align:center; color:#888;">${currentRoute} 目前暫無班次到達。</p>`;
+                return;
+            }
 
             items.forEach(item => {
-                const dirStr = item.dir === 'O' ? '去程' : '回程';
-                const seq = item.seq || '-';
-                const timeStr = item.eta ? item.eta.split('T')[1].substring(0, 5) : '暫無預報';
-                const rmkStr = item.rmk_tc ? `(${item.rmk_tc})` : '';
+                const dirStr = item.dir === 'O' ? '往九龍方向' : '往新界方向';
+                const timeStr = item.eta.split('T')[1].substring(0, 5);
+                const rmkStr = item.rmk_tc ? item.rmk_tc : '';
 
                 html += `
                     <div class="eta-item">
-                        <div class="eta-info">路線 ${item.route || currentRoute} (${dirStr}) - 站序: ${seq}</div>
+                        <div class="eta-info">站序 ${item.seq} | ${dirStr}</div>
                         <div class="eta-time">預計到站：${timeStr}</div>
-                        ${rmkStr ? `<div class="eta-rmk">${rmkStr}</div>` : ''}
+                        ${rmkStr ? `<div class="eta-rmk">備註：${rmkStr}</div>` : ''}
                     </div>
                 `;
             });
@@ -159,12 +163,13 @@
             listEl.innerHTML = html;
 
         } catch (err) {
-            statusEl.innerText = '載入失敗，請確認網路連線。';
+            statusEl.style.display = 'block';
+            statusEl.innerText = '載入失敗，請檢查網路連線或稍後再試。';
             console.error(err);
         }
     }
 
-    // 開啟網頁時自動查詢
+    // 網頁開啟時自動載入
     window.onload = fetchETA;
 </script>
 
