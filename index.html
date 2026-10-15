@@ -46,11 +46,25 @@
     .bound-btn[aria-pressed="true"]{background:var(--kmb);color:var(--cream);font-weight:700}
     .stop-row,.search-row{display:flex;flex-direction:column;gap:.25rem}
     .stop-label{margin:0;font-size:.65rem;color:var(--muted);font-weight:500}
-    .stop-select,.search-input{width:100%;height:2.15rem;border:0;border-radius:.65rem;background:var(--surface-2);color:var(--ink);padding:0 .65rem;font-size:.8rem;box-shadow:inset 0 0 0 1px var(--line)}
-    .stop-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236f6258' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:1.8rem}
-    .search-wrap{display:flex;gap:.35rem}
-    .search-wrap .search-input{flex:1}
-    .search-btn{height:2.15rem;border:0;border-radius:.65rem;padding:0 .75rem;background:var(--kmb);color:var(--cream);font-size:.75rem;font-weight:600;flex:none}
+    .stop-select,.search-input{
+      width:100%;height:2.35rem;border:0;border-radius:.65rem;
+      background:var(--surface-2);color:var(--ink);padding:0 .65rem;
+      /* iOS：小於 16px 會自動放大輸入框，改 16px 避免整頁 zoom */
+      font-size:16px;box-shadow:inset 0 0 0 1px var(--line);
+    }
+    .stop-select{
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236f6258' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right .7rem center;padding-right:1.8rem;
+      font-size:16px;
+    }
+    .search-wrap{display:flex;gap:.35rem;align-items:stretch}
+    .search-wrap .search-input{flex:1;min-width:0}
+    .search-btn{
+      height:2.35rem;border:0;border-radius:.65rem;padding:0 .9rem;
+      background:var(--kmb);color:var(--cream);
+      font-size:.85rem;font-weight:600;flex:none;white-space:nowrap;
+    }
     .search-results{max-height:9rem;overflow:auto;border-radius:.65rem;box-shadow:inset 0 0 0 1px var(--line);background:var(--surface-2)}
     .search-results button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:.45rem .65rem;font-size:.75rem;color:var(--ink);border-top:1px solid var(--line)}
     .search-results button:first-child{border-top:0}
