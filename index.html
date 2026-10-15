@@ -3,190 +3,92 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>九巴 · 73X / 75X / 271</title>
-  <meta name="description" content="九巴 73X、75X、271 可自選站點與方向的實時到站時間。" />
+  <title>香港巴士到站 · 73X / 75X / 271 + 搜尋</title>
+  <meta name="description" content="九巴 73X、75X、271，以及可搜尋九巴／城巴／港鐵巴士／專線小巴的實時到站時間。" />
   <meta name="theme-color" content="#c8102e" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c8102e'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-family='sans-serif' font-size='14' font-weight='700' fill='%23fff7ee'%3E73X%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c8102e'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-family='sans-serif' font-size='14' font-weight='700' fill='%23fff7ee'%3EETA%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" />
   <style>
     :root {
-      --ink: #1c1412;
-      --bg: #f3ece3;
-      --surface: #fffaf4;
-      --surface-2: #efe6db;
-      --muted: #6f6258;
-      --line: #e2d5c6;
-      --kmb: #c8102e;
-      --kmb-deep: #8e0c20;
-      --cream: #fff7ee;
-      --soon: #0d6b3d;
-      --soon-bg: #e5f6ec;
-      --sched: #8a5a00;
-      --sched-bg: #fff1d6;
-      --sans: "Noto Sans TC", "PingFang HK", "Noto Sans CJK TC", sans-serif;
-      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --ink:#1c1412; --bg:#f3ece3; --surface:#fffaf4; --surface-2:#efe6db;
+      --muted:#6f6258; --line:#e2d5c6; --kmb:#c8102e; --kmb-deep:#8e0c20; --cream:#fff7ee;
+      --sans:"Noto Sans TC","PingFang HK","Noto Sans CJK TC",sans-serif;
+      --mono:"IBM Plex Mono",ui-monospace,monospace;
     }
-    * { box-sizing: border-box; }
-    html { color-scheme: light; }
-    body {
-      margin: 0; min-height: 100vh;
-      background: var(--bg); color: var(--ink);
-      font-family: var(--sans); line-height: 1.4;
-    }
-    button, select { font: inherit; cursor: pointer; }
-    button:disabled, select:disabled { cursor: default; opacity: 0.7; }
-    .band { background: var(--kmb); color: var(--cream); }
-    .wrap { max-width: 56rem; margin: 0 auto; padding: 0.85rem 1rem; }
-    .head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
-    .brand { display: flex; gap: 0.6rem; align-items: center; min-width: 0; }
-    .badge {
-      width: 2.5rem; height: 2.5rem; flex: none;
-      display: grid; place-items: center; border-radius: 0.75rem;
-      background: var(--cream); color: var(--kmb);
-      font-family: var(--mono); font-weight: 600; font-size: 0.7rem;
-    }
-    .eyebrow { margin: 0; font-size: 0.7rem; color: color-mix(in srgb, var(--cream) 80%, transparent); }
-    h1 { margin: 0; font-size: 1.2rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; }
-    .clock-wrap { text-align: right; flex: none; }
-    .clock { margin: 0; font-family: var(--mono); font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
-    .clock-label { margin: 0.15rem 0 0; font-size: 0.65rem; color: color-mix(in srgb, var(--cream) 75%, transparent); }
-    .page { max-width: 56rem; margin: 0 auto; padding: 0.75rem 0.75rem 1.5rem; }
-    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.65rem; }
-    .note { margin: 0; color: var(--muted); font-size: 0.7rem; line-height: 1.35; }
-    .refresh {
-      height: 2.2rem; border: 0; border-radius: 999px; flex: none;
-      background: var(--ink); color: var(--cream);
-      padding: 0 0.85rem; font-size: 0.75rem; font-weight: 500;
-    }
-    .refresh:hover { background: var(--kmb-deep); }
-    .alert {
-      margin: 0 0 0.65rem; padding: 0.55rem 0.75rem;
-      border-radius: 0.75rem; background: var(--sched-bg); color: var(--sched); font-size: 0.75rem;
-    }
-    .grid { display: grid; gap: 0.65rem; grid-template-columns: 1fr; }
-    .card {
-      background: var(--surface);
-      border-radius: 1.1rem;
-      padding: 0.7rem 0.75rem 0.8rem;
-      box-shadow: inset 0 0 0 1px var(--line);
-      display: flex; flex-direction: column; gap: 0.5rem;
-    }
-    .route-head {
-      display: flex; align-items: center; justify-content: space-between; gap: 0.4rem;
-    }
-    .route-badge {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 2.6rem; height: 1.65rem; padding: 0 0.45rem;
-      border-radius: 0.5rem; background: var(--kmb); color: var(--cream);
-      font-family: var(--mono); font-weight: 600; font-size: 0.85rem;
-    }
-    .bound-toggle {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem;
-      flex: 1; max-width: 14rem;
-    }
-    .bound-btn {
-      height: 1.85rem; border: 0; border-radius: 0.5rem;
-      background: var(--surface-2); color: var(--ink);
-      font-size: 0.68rem; font-weight: 500; padding: 0 0.35rem;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .bound-btn[aria-pressed="true"] {
-      background: var(--kmb); color: var(--cream); font-weight: 700;
-    }
-    .stop-row { display: flex; flex-direction: column; gap: 0.25rem; }
-    .stop-label { margin: 0; font-size: 0.65rem; color: var(--muted); font-weight: 500; }
-    .stop-select {
-      width: 100%; height: 2.15rem;
-      border: 0; border-radius: 0.65rem;
-      background: var(--surface-2); color: var(--ink);
-      padding: 0 0.65rem; font-size: 0.8rem;
-      box-shadow: inset 0 0 0 1px var(--line);
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236f6258' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.7rem center;
-      padding-right: 1.8rem;
-    }
-    .eta-panel {
-      background: var(--ink); color: var(--cream);
-      border-radius: 0.85rem; padding: 0.7rem 0.75rem;
-      min-height: 5.5rem;
-    }
-    .eta-panel .dest {
-      margin: 0; font-size: 0.7rem;
-      color: color-mix(in srgb, var(--cream) 70%, transparent);
-    }
-    .eta-hero {
-      display: flex; align-items: flex-end; justify-content: space-between;
-      gap: 0.5rem; margin-top: 0.25rem;
-    }
-    .mins {
-      margin: 0; font-family: var(--mono); font-size: 2.4rem; font-weight: 600;
-      line-height: 0.9; font-variant-numeric: tabular-nums;
-    }
-    .mins.soon { color: #7dffb0; }
-    .aside { text-align: right; padding-bottom: 0.1rem; }
-    .unit { margin: 0; font-size: 0.85rem; font-weight: 500; }
-    .hm { margin: 0; font-family: var(--mono); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
-    .pill {
-      display: inline-flex; margin-top: 0.35rem;
-      border-radius: 999px; padding: 0.08rem 0.5rem;
-      font-size: 0.65rem; font-weight: 500;
-      background: color-mix(in srgb, var(--cream) 15%, transparent); color: var(--cream);
-    }
-    .pill.soon { background: #1a5c3a; color: #b6f5d0; }
-    .pill.sched { background: #5c4508; color: #ffe6a8; }
-    .list {
-      list-style: none; margin: 0.45rem 0 0; padding: 0;
-      border-radius: 0.65rem; overflow: hidden;
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cream) 18%, transparent);
-    }
-    .list li {
-      display: flex; justify-content: space-between; gap: 0.5rem;
-      padding: 0.4rem 0.6rem;
-      border-top: 1px solid color-mix(in srgb, var(--cream) 12%, transparent);
-      font-family: var(--mono); font-size: 0.8rem; font-variant-numeric: tabular-nums;
-    }
-    .list li:first-child { border-top: 0; }
-    .empty, .skeleton {
-      margin: 0; min-height: 3.5rem;
-      display: grid; place-items: center;
-      color: color-mix(in srgb, var(--cream) 65%, transparent);
-      font-size: 0.8rem; text-align: center;
-    }
-    .skeleton {
-      border-radius: 0.5rem;
-      background: color-mix(in srgb, var(--cream) 12%, transparent);
-      animation: pulse 1.2s ease-in-out infinite;
-    }
-    @keyframes pulse { 50% { opacity: 0.55; } }
-    footer.meta {
-      margin-top: 0.9rem; padding-top: 0.7rem;
-      border-top: 1px solid var(--line);
-      display: flex; flex-direction: column; gap: 0.25rem;
-      color: var(--muted); font-size: 0.7rem;
-    }
-    footer.meta strong { color: var(--ink); font-family: var(--mono); font-weight: 500; }
-    @media (min-width: 560px) {
-      .grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (min-width: 900px) {
-      .grid { grid-template-columns: 1fr 1fr 1fr; }
-      .mins { font-size: 2.6rem; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .skeleton { animation: none; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.4}
+    button,select,input{font:inherit} button{cursor:pointer}
+    .band{background:var(--kmb);color:var(--cream)}
+    .wrap{max-width:64rem;margin:0 auto;padding:.85rem 1rem}
+    .head{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+    .brand{display:flex;gap:.6rem;align-items:center;min-width:0}
+    .badge{width:2.5rem;height:2.5rem;flex:none;display:grid;place-items:center;border-radius:.75rem;background:var(--cream);color:var(--kmb);font-family:var(--mono);font-weight:600;font-size:.7rem}
+    .eyebrow{margin:0;font-size:.7rem;color:color-mix(in srgb,var(--cream) 80%,transparent)}
+    h1{margin:0;font-size:1.15rem;font-weight:900;letter-spacing:-.02em;line-height:1.15}
+    .clock-wrap{text-align:right;flex:none}
+    .clock{margin:0;font-family:var(--mono);font-size:1.35rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+    .clock-label{margin:.15rem 0 0;font-size:.65rem;color:color-mix(in srgb,var(--cream) 75%,transparent)}
+    .page{max-width:64rem;margin:0 auto;padding:.75rem .75rem 1.5rem}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.65rem}
+    .note{margin:0;color:var(--muted);font-size:.7rem;line-height:1.35}
+    .refresh{height:2.2rem;border:0;border-radius:999px;flex:none;background:var(--ink);color:var(--cream);padding:0 .85rem;font-size:.75rem;font-weight:500}
+    .alert{margin:0 0 .65rem;padding:.55rem .75rem;border-radius:.75rem;background:#fff1d6;color:#8a5a00;font-size:.75rem}
+    .grid{display:grid;gap:.65rem;grid-template-columns:1fr}
+    .card{background:var(--surface);border-radius:1.1rem;padding:.7rem .75rem .8rem;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:.5rem}
+    .route-head{display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+    .route-badge{display:inline-flex;align-items:center;justify-content:center;min-width:2.6rem;height:1.65rem;padding:0 .45rem;border-radius:.5rem;background:var(--kmb);color:var(--cream);font-family:var(--mono);font-weight:600;font-size:.85rem}
+    .route-badge.ctb{background:#e85d04}
+    .route-badge.mtrb{background:#003366}
+    .route-badge.gmb{background:#1a7f37}
+    .route-badge.search{background:var(--ink);font-size:.7rem}
+    .bound-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;flex:1;max-width:14rem}
+    .bound-btn{height:1.85rem;border:0;border-radius:.5rem;background:var(--surface-2);color:var(--ink);font-size:.68rem;font-weight:500;padding:0 .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bound-btn[aria-pressed="true"]{background:var(--kmb);color:var(--cream);font-weight:700}
+    .stop-row,.search-row{display:flex;flex-direction:column;gap:.25rem}
+    .stop-label{margin:0;font-size:.65rem;color:var(--muted);font-weight:500}
+    .stop-select,.search-input{width:100%;height:2.15rem;border:0;border-radius:.65rem;background:var(--surface-2);color:var(--ink);padding:0 .65rem;font-size:.8rem;box-shadow:inset 0 0 0 1px var(--line)}
+    .stop-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236f6258' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:1.8rem}
+    .search-wrap{display:flex;gap:.35rem}
+    .search-wrap .search-input{flex:1}
+    .search-btn{height:2.15rem;border:0;border-radius:.65rem;padding:0 .75rem;background:var(--kmb);color:var(--cream);font-size:.75rem;font-weight:600;flex:none}
+    .search-results{max-height:9rem;overflow:auto;border-radius:.65rem;box-shadow:inset 0 0 0 1px var(--line);background:var(--surface-2)}
+    .search-results button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:.45rem .65rem;font-size:.75rem;color:var(--ink);border-top:1px solid var(--line)}
+    .search-results button:first-child{border-top:0}
+    .search-results button:hover{background:color-mix(in srgb,var(--kmb) 12%,transparent)}
+    .search-results .co{display:inline-block;font-family:var(--mono);font-size:.65rem;font-weight:600;margin-right:.35rem}
+    .co-kmb{color:var(--kmb)} .co-ctb{color:#e85d04} .co-mtrb{color:#003366} .co-gmb{color:#1a7f37}
+    .eta-panel{background:var(--ink);color:var(--cream);border-radius:.85rem;padding:.7rem .75rem;min-height:5.5rem}
+    .eta-panel .dest{margin:0;font-size:.7rem;color:color-mix(in srgb,var(--cream) 70%,transparent)}
+    .eta-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;margin-top:.25rem}
+    .mins{margin:0;font-family:var(--mono);font-size:2.4rem;font-weight:600;line-height:.9;font-variant-numeric:tabular-nums}
+    .mins.soon{color:#7dffb0}
+    .aside{text-align:right;padding-bottom:.1rem}
+    .unit{margin:0;font-size:.85rem;font-weight:500}
+    .hm{margin:0;font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums}
+    .pill{display:inline-flex;margin-top:.35rem;border-radius:999px;padding:.08rem .5rem;font-size:.65rem;font-weight:500;background:color-mix(in srgb,var(--cream) 15%,transparent);color:var(--cream)}
+    .pill.soon{background:#1a5c3a;color:#b6f5d0}
+    .pill.sched{background:#5c4508;color:#ffe6a8}
+    .list{list-style:none;margin:.45rem 0 0;padding:0;border-radius:.65rem;overflow:hidden;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cream) 18%,transparent)}
+    .list li{display:flex;justify-content:space-between;gap:.5rem;padding:.4rem .6rem;border-top:1px solid color-mix(in srgb,var(--cream) 12%,transparent);font-family:var(--mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+    .list li:first-child{border-top:0}
+    .empty,.skeleton{margin:0;min-height:3.5rem;display:grid;place-items:center;color:color-mix(in srgb,var(--cream) 65%,transparent);font-size:.8rem;text-align:center}
+    .skeleton{border-radius:.5rem;background:color-mix(in srgb,var(--cream) 12%,transparent);animation:pulse 1.2s ease-in-out infinite}
+    @keyframes pulse{50%{opacity:.55}}
+    footer.meta{margin-top:.9rem;padding-top:.7rem;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:.25rem;color:var(--muted);font-size:.7rem}
+    footer.meta strong{color:var(--ink);font-family:var(--mono);font-weight:500}
+    @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+    @media(min-width:960px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}.mins{font-size:2.2rem}}
+    @media(prefers-reduced-motion:reduce){.skeleton{animation:none}}
   </style>
 </head>
 <body>
   <header class="band">
     <div class="wrap head">
       <div class="brand">
-        <div class="badge">KMB</div>
+        <div class="badge">ETA</div>
         <div>
-          <p class="eyebrow">73X · 75X · 271</p>
-          <h1>自選站點到站</h1>
+          <p class="eyebrow">九巴 · 城巴 · 港鐵巴 · 小巴</p>
+          <h1>巴士到站時間</h1>
         </div>
       </div>
       <div class="clock-wrap">
@@ -195,10 +97,9 @@
       </div>
     </div>
   </header>
-
   <div class="page">
     <div class="toolbar">
-      <p class="note">可切換往返與任意站點 · 每 30 秒更新 · 實時以九巴為準</p>
+      <p class="note">前三格固定 73X／75X／271 · 第 4 格可搜尋九巴／城巴／港鐵巴士／綠色小巴 · 請用瀏覽器開啟 · 每 30 秒更新</p>
       <button class="refresh" id="refresh" type="button">更新</button>
     </div>
     <p class="alert" id="alert" hidden></p>
@@ -206,336 +107,649 @@
       <section class="card" id="card-73x" data-key="73x"></section>
       <section class="card" id="card-75x" data-key="75x"></section>
       <section class="card" id="card-271" data-key="271"></section>
+      <section class="card" id="card-search" data-key="search"></section>
     </div>
     <footer class="meta">
       <p>最後更新 <strong id="updated">—</strong></p>
-      <p>資料來源：運輸署 DATA.GOV.HK（九巴）。只供參考，請以現場為準。</p>
+      <p>資料來源：運輸署／城巴／港鐵／專線小巴 DATA.GOV.HK。港鐵重鐵、輕鐵暫未支援。只供參考，請以現場為準。</p>
     </footer>
   </div>
+<script>
+const DEFAULTS = {
+  "73x": { bound: "I", stop: "1DB270D8A2092753" },
+  "75x": { bound: "O", stop: "C67CDF76A28A4E0E" },
+  "271": { bound: "O", stop: "5A1A5F0DEB7F8EBE" }
+};
+const FIXED = {
+  "73x": { route: "73X", serviceType: "1" },
+  "75x": { route: "75X", serviceType: "1" },
+  "271": { route: "271", serviceType: "1" }
+};
+const GMB_REGION_NAME = { HKI: "港島", KLN: "九龍", NT: "新界" };
+const GMB_STATIC = [
+  { region: "NT", route: "20A", routeId: 2001361, orig: "大埔墟站專線小巴總站", dest: "雅麗氏何妙齡那打素醫院" },
+  { region: "NT", route: "20B", routeId: 2005484, orig: "大埔墟站", dest: "洞梓" },
+  { region: "NT", route: "20C", routeId: 2001470, orig: "大埔墟站", dest: "大美督" },
+  { region: "NT", route: "20K", routeId: 2001464, orig: "大埔墟站", dest: "三門仔" },
+  { region: "NT", route: "25K", routeId: 2004067, orig: "大埔墟", dest: "林村 (白牛石)" },
+  { region: "NT", route: "26", routeId: 2005253, orig: "香港教育大學", dest: "馬鞍山海栢花園" },
+  { region: "NT", route: "502", routeId: 2001920, orig: "大埔那打素醫院", dest: "清河邨" },
+  { region: "HKI", route: "1", routeId: 2006408, orig: "山頂", dest: "中環(香港站)" },
+  { region: "KLN", route: "26", routeId: 2002815, orig: "土瓜灣(浙江街)", dest: "九龍站" }
+];
 
-  <script>
-    const DEFAULTS = {
-      "73x": { bound: "I", stop: "1DB270D8A2092753" },
-      "75x": { bound: "O", stop: "C67CDF76A28A4E0E" },
-      "271": { bound: "O", stop: "5A1A5F0DEB7F8EBE" }
-    };
+const state = {
+  meta: {}, stops: {}, stopNames: {},
+  selection: loadSel(),
+  eta: { "73x": [], "75x": [], "271": [], search: [] },
+  search: loadSearch(),
+  routeCatalog: null,
+  mtrStopNames: {},
+  searchHits: [],
+  updated: null, error: "", ready: false, loadingEta: false
+};
 
-    const ROUTES = {
-      "73x": { key: "73x", route: "73X", serviceType: "1" },
-      "75x": { key: "75x", route: "75X", serviceType: "1" },
-      "271": { key: "271", route: "271", serviceType: "1" }
-    };
+function loadSel() {
+  try {
+    const p = JSON.parse(localStorage.getItem("kmb-multi-sel-v3") || "null");
+    if (p) return { "73x": { ...DEFAULTS["73x"], ...p["73x"] }, "75x": { ...DEFAULTS["75x"], ...p["75x"] }, "271": { ...DEFAULTS["271"], ...p["271"] } };
+  } catch (_) {}
+  return JSON.parse(JSON.stringify(DEFAULTS));
+}
+function saveSel() { try { localStorage.setItem("kmb-multi-sel-v3", JSON.stringify(state.selection)); } catch (_) {} }
+function loadSearch() {
+  try {
+    const p = JSON.parse(localStorage.getItem("kmb-search-sel-v3") || "null");
+    if (p) return p;
+  } catch (_) {}
+  return { co: null, route: null, bound: "O", stop: null, serviceType: "1", destLabel: "", origLabel: "", routeId: null, region: null };
+}
+function saveSearch() { try { localStorage.setItem("kmb-search-sel-v3", JSON.stringify(state.search)); } catch (_) {} }
 
-    const state = {
-      meta: {},
-      stops: {},
-      stopNames: {},
-      selection: loadSelection(),
-      eta: { "73x": [], "75x": [], "271": [] },
-      updated: null,
-      error: "",
-      ready: false,
-      loadingEta: false
-    };
+const clockEl = document.getElementById("clock");
+const updatedEl = document.getElementById("updated");
+const alertEl = document.getElementById("alert");
 
-    function loadSelection() {
-      try {
-        const raw = localStorage.getItem("kmb-multi-sel");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          return {
-            "73x": { ...DEFAULTS["73x"], ...(parsed["73x"] || {}) },
-            "75x": { ...DEFAULTS["75x"], ...(parsed["75x"] || {}) },
-            "271": { ...DEFAULTS["271"], ...(parsed["271"] || {}) }
-          };
-        }
-      } catch (_) {}
-      return JSON.parse(JSON.stringify(DEFAULTS));
-    }
+function hkParts(date) {
+  const parts = new Intl.DateTimeFormat("zh-HK", { timeZone: "Asia/Hong_Kong", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).formatToParts(date);
+  const g = (t) => parts.find((p) => p.type === t)?.value || "00";
+  return { hm: g("hour") + ":" + g("minute"), hms: g("hour") + ":" + g("minute") + ":" + g("second") };
+}
+function escapeHtml(v) {
+  return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function shortName(name) {
+  if (!name) return "—";
+  return String(name).replace(/巴士總站/g, "總站").replace(/專線小巴總站/g, "小巴總站").replace(/\s*\([^)]*\)\s*$/g, "").trim();
+}
+function describe(row, now) {
+  const rmk = row.rmk_tc || row.rmk || "";
+  const scheduled = String(rmk).includes("原定") || String(rmk).includes("未開出") || row._sched;
+  const kind = String(rmk).trim() ? (scheduled ? (String(rmk).includes("未開出") ? "未開出" : "時間表") : String(rmk).trim()) : (row._sched ? "時間表" : "實時");
+  if (row._minsText) {
+    const tone = row._soon ? "soon" : (scheduled || row._sched ? "sched" : "normal");
+    return { primary: row._minsText, unit: row._unit || "", clock: row._clock || "—", kind, tone };
+  }
+  if (!row.eta) return { primary: "—", unit: "", clock: "未能預計", kind, tone: "sched" };
+  const diff = new Date(row.eta).getTime() - now;
+  const clock = hkParts(new Date(row.eta)).hm;
+  if (diff < 60000) return { primary: "即將", unit: "", clock, kind, tone: "soon" };
+  return { primary: String(Math.max(0, Math.round(diff / 60000))), unit: "分鐘", clock, kind, tone: scheduled ? "sched" : "normal" };
+}
+async function fetchJson(url) {
+  const res = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
+  if (!res.ok) throw new Error(String(res.status));
+  return res.json();
+}
+async function gmbFetch(url) {
+  const res = await fetch(url, { method: "GET", cache: "no-store", mode: "cors" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+async function loadStopNameKmb(stopId) {
+  const key = "kmb:" + stopId;
+  if (state.stopNames[key]) return state.stopNames[key];
+  try {
+    const p = await fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/stop/" + stopId);
+    state.stopNames[key] = p.data?.name_tc || stopId;
+  } catch (_) { state.stopNames[key] = stopId; }
+  return state.stopNames[key];
+}
+async function loadStopNameCtb(stopId) {
+  const key = "ctb:" + stopId;
+  if (state.stopNames[key]) return state.stopNames[key];
+  try {
+    const p = await fetchJson("https://rt.data.gov.hk/v2/transport/citybus/stop/" + stopId);
+    state.stopNames[key] = p.data?.name_tc || stopId;
+  } catch (_) { state.stopNames[key] = stopId; }
+  return state.stopNames[key];
+}
 
-    function saveSelection() {
-      try { localStorage.setItem("kmb-multi-sel", JSON.stringify(state.selection)); } catch (_) {}
-    }
+async function loadRouteMeta(key) {
+  const cfg = FIXED[key];
+  const [inb, outb] = await Promise.all([
+    fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route/" + cfg.route + "/inbound/" + cfg.serviceType),
+    fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route/" + cfg.route + "/outbound/" + cfg.serviceType)
+  ]);
+  state.meta[key] = {
+    I: { orig: inb.data?.orig_tc || "", dest: inb.data?.dest_tc || "" },
+    O: { orig: outb.data?.orig_tc || "", dest: outb.data?.dest_tc || "" }
+  };
+}
+async function loadRouteStops(key) {
+  const cfg = FIXED[key];
+  const [inb, outb] = await Promise.all([
+    fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route-stop/" + cfg.route + "/inbound/" + cfg.serviceType),
+    fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route-stop/" + cfg.route + "/outbound/" + cfg.serviceType)
+  ]);
+  const mapList = async (list) => {
+    const rows = (list.data || []).slice().sort((a, b) => Number(a.seq) - Number(b.seq));
+    const names = await Promise.all(rows.map((r) => loadStopNameKmb(r.stop)));
+    return rows.map((r, i) => ({ stop: r.stop, seq: Number(r.seq), name: shortName(names[i]) }));
+  };
+  state.stops[key] = { I: await mapList(inb), O: await mapList(outb) };
+  ensureSel(key);
+}
+function ensureSel(key) {
+  const bound = state.selection[key].bound;
+  const list = (state.stops[key] && state.stops[key][bound]) || [];
+  if (list.length && !list.some((s) => s.stop === state.selection[key].stop)) state.selection[key].stop = list[0].stop;
+}
+function boundLabel(key, bound) {
+  const m = state.meta[key] && state.meta[key][bound];
+  return m ? "往" + shortName(m.dest) : (bound === "I" ? "方向 I" : "方向 O");
+}
 
-    const clockEl = document.getElementById("clock");
-    const updatedEl = document.getElementById("updated");
-    const alertEl = document.getElementById("alert");
+async function ensureCatalog() {
+  if (state.routeCatalog) return state.routeCatalog;
+  const items = [];
+  const seen = new Set();
+  const [kmbRes, ctbRes] = await Promise.allSettled([
+    fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route/"),
+    fetchJson("https://rt.data.gov.hk/v2/transport/citybus/route/ctb")
+  ]);
+  if (kmbRes.status === "fulfilled") {
+    (kmbRes.value.data || []).forEach((r) => {
+      const id = "kmb|" + r.route + "|" + r.bound + "|" + r.service_type;
+      if (seen.has(id)) return; seen.add(id);
+      items.push({ co: "kmb", route: r.route, bound: r.bound, serviceType: String(r.service_type || "1"), orig: r.orig_tc, dest: r.dest_tc });
+    });
+  }
+  if (ctbRes.status === "fulfilled") {
+    (ctbRes.value.data || []).forEach((r) => {
+      const id = "ctb|" + r.route;
+      if (seen.has(id)) return; seen.add(id);
+      items.push({ co: "ctb", route: r.route, bound: "O", serviceType: "1", orig: r.orig_tc, dest: r.dest_tc });
+    });
+  }
+  const MTR_BUS_ROUTES = [
+    ["K12","大埔墟站至八號花園"],["K14","大埔超級城至大埔墟站"],["K17","大埔墟站至富善"],["K18","大埔墟站至廣福"],
+    ["506","屯門碼頭至兆麟"],["K51","富泰至大欖"],["K52","悅湖山莊至龍鼓灘"],["K65","元朗站至流浮山"],
+    ["K66","朗屏至大棠"],["K73","天恆至元朗西"],["K76","天恆至天水圍站"]
+  ];
+  MTR_BUS_ROUTES.forEach(([route, name]) => {
+    const id = "mtrb|" + route + "|" + name;
+    if (seen.has(id)) return; seen.add(id);
+    const parts = name.split(/至|到/);
+    items.push({ co: "mtrb", route, bound: "O", serviceType: "1", orig: parts[0] || name, dest: parts[1] || name, nameZh: name });
+  });
+  if (!items.length) throw new Error("empty catalog");
+  state.routeCatalog = items;
+  return items;
+}
 
-    function hkParts(date) {
-      const parts = new Intl.DateTimeFormat("zh-HK", {
-        timeZone: "Asia/Hong_Kong",
-        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-      }).formatToParts(date);
-      const get = (type) => parts.find((p) => p.type === type)?.value || "00";
-      return { hm: get("hour") + ":" + get("minute"), hms: get("hour") + ":" + get("minute") + ":" + get("second") };
-    }
+function searchRoutes(q) {
+  const raw = String(q || "").trim();
+  const query = raw.toUpperCase().replace(/\s+/g, "");
+  if (!query || !state.routeCatalog) return [];
+  const exact = [], prefix = [];
+  state.routeCatalog.forEach((item) => {
+    const rt = String(item.route).toUpperCase().replace(/\s+/g, "");
+    if (rt === query) exact.push(item);
+    else if (rt.startsWith(query)) prefix.push(item);
+  });
+  const rank = { kmb: 0, ctb: 1, mtrb: 2 };
+  exact.sort((a, b) => (rank[a.co] ?? 9) - (rank[b.co] ?? 9));
+  const pickPrefix = [];
+  const perCo = { kmb: 0, ctb: 0, mtrb: 0 };
+  for (const item of prefix) {
+    const n = perCo[item.co] || 0;
+    if (n >= 10) continue;
+    perCo[item.co] = n + 1;
+    pickPrefix.push(item);
+  }
+  return exact.concat(pickPrefix).slice(0, 40);
+}
 
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function shortName(name) {
-      if (!name) return "—";
-      return name
-        .replace(/巴士總站/g, "總站")
-        .replace(/\s*\([^)]*\)\s*$/g, "")
-        .trim();
-    }
-
-    function describe(row, now) {
-      const scheduled = (row.rmk_tc || "").includes("原定");
-      const kind = (row.rmk_tc || "").trim() ? (scheduled ? "時間表" : row.rmk_tc.trim()) : "實時";
-      if (!row.eta) return { primary: "—", unit: "", clock: "未能預計", kind, tone: "sched" };
-      const diff = new Date(row.eta).getTime() - now;
-      const clock = hkParts(new Date(row.eta)).hm;
-      if (diff < 60000) return { primary: "即將", unit: "", clock, kind, tone: "soon" };
-      return {
-        primary: String(Math.max(0, Math.round(diff / 60000))),
-        unit: "分鐘",
-        clock,
-        kind,
-        tone: scheduled ? "sched" : "normal"
-      };
-    }
-
-    async function fetchJson(url) {
-      const res = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error(String(res.status));
-      return res.json();
-    }
-
-    async function loadStopName(stopId) {
-      if (state.stopNames[stopId]) return state.stopNames[stopId];
-      try {
-        const payload = await fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/stop/" + stopId);
-        const name = (payload.data && payload.data.name_tc) || stopId;
-        state.stopNames[stopId] = name;
-        return name;
-      } catch (_) {
-        state.stopNames[stopId] = stopId;
-        return stopId;
-      }
-    }
-
-    async function loadRouteMeta(key) {
-      const cfg = ROUTES[key];
-      const [inb, outb] = await Promise.all([
-        fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route/" + cfg.route + "/inbound/" + cfg.serviceType),
-        fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route/" + cfg.route + "/outbound/" + cfg.serviceType)
-      ]);
-      state.meta[key] = {
-        I: { orig: inb.data?.orig_tc || "", dest: inb.data?.dest_tc || "" },
-        O: { orig: outb.data?.orig_tc || "", dest: outb.data?.dest_tc || "" }
-      };
-    }
-
-    async function loadRouteStops(key) {
-      const cfg = ROUTES[key];
-      const [inb, outb] = await Promise.all([
-        fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route-stop/" + cfg.route + "/inbound/" + cfg.serviceType),
-        fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route-stop/" + cfg.route + "/outbound/" + cfg.serviceType)
-      ]);
-      const mapList = async (list) => {
-        const rows = (list.data || []).slice().sort((a, b) => Number(a.seq) - Number(b.seq));
-        const names = await Promise.all(rows.map((r) => loadStopName(r.stop)));
-        return rows.map((r, i) => ({
-          stop: r.stop,
-          seq: Number(r.seq),
-          name: shortName(names[i])
-        }));
-      };
-      state.stops[key] = {
-        I: await mapList(inb),
-        O: await mapList(outb)
-      };
-      const bound = state.selection[key].bound;
-      const list = state.stops[key][bound] || [];
-      if (list.length && !list.some((s) => s.stop === state.selection[key].stop)) {
-        state.selection[key].stop = list[0].stop;
-      }
-    }
-
-    function ensureSelectionValid(key) {
-      const bound = state.selection[key].bound;
-      const list = (state.stops[key] && state.stops[key][bound]) || [];
-      if (!list.length) return;
-      if (!list.some((s) => s.stop === state.selection[key].stop)) {
-        state.selection[key].stop = list[0].stop;
-      }
-    }
-
-    function boundLabel(key, bound) {
-      const m = state.meta[key] && state.meta[key][bound];
-      if (!m) return bound === "I" ? "方向 I" : "方向 O";
-      return "往" + shortName(m.dest);
-    }
-
-    function etaHtml(key, now) {
-      if (!state.ready || state.loadingEta) {
-        return '<div class="skeleton"></div>';
-      }
-      const sel = state.selection[key];
-      const rows = (state.eta[key] || [])
-        .filter((r) => r.route === ROUTES[key].route && r.dir === sel.bound)
-        .sort((a, b) => a.eta_seq - b.eta_seq);
-
-      const meta = state.meta[key] && state.meta[key][sel.bound];
-      const dest = meta ? shortName(meta.dest) : "";
-
-      if (!rows.length) {
-        return '<p class="dest">往 ' + escapeHtml(dest) + '</p><div class="empty">暫時沒有班次</div>';
-      }
-
-      const view = describe(rows[0], now);
-      const tone = view.tone === "soon" ? " soon" : view.tone === "sched" ? " sched" : "";
-      const follow = rows.slice(1, 4).map((row) => {
-        const item = describe(row, now);
-        const label = item.unit ? item.primary + " " + item.unit : item.primary;
-        return "<li><span>" + escapeHtml(item.clock) + "</span><span>" + escapeHtml(label) + "</span></li>";
-      }).join("");
-
-      return (
-        '<p class="dest">往 ' + escapeHtml(dest) + "</p>" +
-        '<div class="eta-hero"><p class="mins' + tone + '">' + escapeHtml(view.primary) + "</p>" +
-        '<div class="aside">' +
-        (view.unit ? '<p class="unit">' + view.unit + "</p>" : "") +
-        '<p class="hm">' + escapeHtml(view.clock) + "</p></div></div>" +
-        '<span class="pill' + tone + '">' + escapeHtml(view.kind) + "</span>" +
-        (follow ? '<ul class="list">' + follow + "</ul>" : "")
-      );
-    }
-
-    function cardHtml(key, now) {
-      const cfg = ROUTES[key];
-      const sel = state.selection[key];
-      const list = (state.stops[key] && state.stops[key][sel.bound]) || [];
-      const options = list.map((s) => {
-        const selected = s.stop === sel.stop ? " selected" : "";
-        return '<option value="' + escapeHtml(s.stop) + '"' + selected + ">" +
-          escapeHtml(s.seq + ". " + s.name) + "</option>";
-      }).join("");
-
-      return (
-        '<div class="route-head">' +
-        '<span class="route-badge">' + cfg.route + "</span>" +
-        '<div class="bound-toggle" role="group" aria-label="方向">' +
-        '<button type="button" class="bound-btn" data-bound="I" aria-pressed="' + (sel.bound === "I") + '">' +
-        escapeHtml(boundLabel(key, "I")) + "</button>" +
-        '<button type="button" class="bound-btn" data-bound="O" aria-pressed="' + (sel.bound === "O") + '">' +
-        escapeHtml(boundLabel(key, "O")) + "</button>" +
-        "</div></div>" +
-        '<div class="stop-row">' +
-        '<p class="stop-label">站點</p>' +
-        '<select class="stop-select" data-key="' + key + '" aria-label="選擇站點">' +
-        (options || '<option value="">載入中…</option>') +
-        "</select></div>" +
-        '<div class="eta-panel">' + etaHtml(key, now) + "</div>"
-      );
-    }
-
-    function render() {
-      const now = Date.now();
-      clockEl.textContent = hkParts(new Date(now)).hm;
-      ["73x", "75x", "271"].forEach((key) => {
-        document.getElementById("card-" + key).innerHTML = cardHtml(key, now);
-      });
-      updatedEl.textContent = state.updated ? hkParts(new Date(state.updated)).hms : "—";
-      alertEl.hidden = !state.error;
-      alertEl.textContent = state.error;
-      bindCardEvents();
-    }
-
-    function bindCardEvents() {
-      document.querySelectorAll(".card").forEach((card) => {
-        const key = card.dataset.key;
-        card.querySelectorAll(".bound-btn").forEach((btn) => {
-          btn.onclick = () => {
-            const bound = btn.dataset.bound;
-            if (state.selection[key].bound === bound) return;
-            state.selection[key].bound = bound;
-            ensureSelectionValid(key);
-            saveSelection();
-            loadEta();
-          };
-        });
-        const sel = card.querySelector(".stop-select");
-        if (sel) {
-          sel.onchange = () => {
-            state.selection[key].stop = sel.value;
-            saveSelection();
-            loadEta();
-          };
-        }
+async function probeGmbAllRegions(query) {
+  const q = String(query || "").trim().toUpperCase().replace(/\s+/g, "");
+  if (!q) return [];
+  const hits = [];
+  const seen = new Set();
+  GMB_STATIC.forEach((item) => {
+    if (item.route.toUpperCase() === q) {
+      const id = item.region + "|" + item.routeId;
+      if (seen.has(id)) return;
+      seen.add(id);
+      hits.push({
+        co: "gmb", route: item.route, region: item.region, routeId: item.routeId, bound: "1",
+        orig: item.orig, dest: item.dest, regionLabel: GMB_REGION_NAME[item.region]
       });
     }
+  });
+  const regions = ["NT", "KLN", "HKI"];
+  const live = await Promise.all(regions.map(async (region) => {
+    try {
+      const detail = await gmbFetch("https://data.etagmb.gov.hk/route/" + encodeURIComponent(region) + "/" + encodeURIComponent(q));
+      return (detail.data || []).map((v) => {
+        const d0 = (v.directions || [])[0] || {};
+        return {
+          co: "gmb", route: q, region, routeId: v.route_id, bound: "1",
+          orig: d0.orig_tc || GMB_REGION_NAME[region], dest: d0.dest_tc || "",
+          regionLabel: GMB_REGION_NAME[region]
+        };
+      });
+    } catch (_) { return []; }
+  }));
+  live.flat().forEach((hit) => {
+    const id = hit.region + "|" + hit.routeId;
+    if (seen.has(id)) return;
+    seen.add(id);
+    hits.push(hit);
+  });
+  return hits;
+}
 
-    async function loadEta() {
-      state.loadingEta = true;
-      render();
-      try {
-        const results = await Promise.all(["73x", "75x", "271"].map(async (key) => {
-          const cfg = ROUTES[key];
-          const stop = state.selection[key].stop;
-          if (!stop) return { key, rows: [], ts: null };
-          const payload = await fetchJson(
-            "https://data.etabus.gov.hk/v1/transport/kmb/eta/" + stop + "/" + cfg.route + "/" + cfg.serviceType
-          );
-          return {
-            key,
-            rows: payload.data || [],
-            ts: (payload.data && payload.data[0] && payload.data[0].data_timestamp) || payload.generated_timestamp || null
-          };
-        }));
-        results.forEach((r) => { state.eta[r.key] = r.rows; });
-        const stamps = results.map((r) => r.ts).filter(Boolean).map((t) => new Date(t).getTime());
-        state.updated = stamps.length ? new Date(Math.max(...stamps)).toISOString() : null;
-        state.error = "";
-      } catch (err) {
-        state.error = "暫時連不到九巴資料，顯示可能不是最新。";
-      }
-      state.loadingEta = false;
-      render();
+async function loadSearchStops() {
+  const s = state.search;
+  if (!s.co) { state.stops.search = {}; return; }
+
+  if (s.co === "kmb") {
+    const st = s.serviceType || "1";
+    const [inb, outb] = await Promise.all([
+      fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route-stop/" + s.route + "/inbound/" + st),
+      fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route-stop/" + s.route + "/outbound/" + st)
+    ]);
+    const mapList = async (list) => {
+      const rows = (list.data || []).slice().sort((a, b) => Number(a.seq) - Number(b.seq));
+      const names = await Promise.all(rows.map((r) => loadStopNameKmb(r.stop)));
+      return rows.map((r, i) => ({ stop: r.stop, seq: Number(r.seq), name: shortName(names[i]) }));
+    };
+    state.stops.search = { I: await mapList(inb), O: await mapList(outb) };
+    try {
+      const [mi, mo] = await Promise.all([
+        fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route/" + s.route + "/inbound/" + st),
+        fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/route/" + s.route + "/outbound/" + st)
+      ]);
+      state.meta.search = { I: { orig: mi.data?.orig_tc || "", dest: mi.data?.dest_tc || "" }, O: { orig: mo.data?.orig_tc || "", dest: mo.data?.dest_tc || "" } };
+    } catch (_) {
+      state.meta.search = { I: { orig: s.destLabel, dest: s.origLabel }, O: { orig: s.origLabel, dest: s.destLabel } };
     }
-
-    async function init() {
-      try {
-        await Promise.all([
-          loadRouteMeta("73x"), loadRouteMeta("75x"), loadRouteMeta("271")
-        ]);
-        await Promise.all([
-          loadRouteStops("73x"), loadRouteStops("75x"), loadRouteStops("271")
-        ]);
-        ["73x", "75x", "271"].forEach(ensureSelectionValid);
-        saveSelection();
-        state.ready = true;
-        state.error = "";
-      } catch (err) {
-        state.error = "無法載入路線／站點資料，請稍後再試。";
-        state.ready = true;
-      }
-      render();
-      await loadEta();
+  } else if (s.co === "ctb") {
+    const [outb, inb] = await Promise.all([
+      fetchJson("https://rt.data.gov.hk/v2/transport/citybus/route-stop/CTB/" + s.route + "/outbound"),
+      fetchJson("https://rt.data.gov.hk/v2/transport/citybus/route-stop/CTB/" + s.route + "/inbound")
+    ]);
+    const mapList = async (list) => {
+      const rows = (list.data || []).slice().sort((a, b) => Number(a.seq) - Number(b.seq));
+      const names = await Promise.all(rows.map((r) => loadStopNameCtb(r.stop)));
+      return rows.map((r, i) => ({ stop: r.stop, seq: Number(r.seq), name: shortName(names[i]) }));
+    };
+    state.stops.search = { O: await mapList(outb), I: await mapList(inb) };
+    state.meta.search = { O: { orig: s.origLabel, dest: s.destLabel }, I: { orig: s.destLabel, dest: s.origLabel } };
+  } else if (s.co === "mtrb") {
+    const res = await fetch("https://rt.data.gov.hk/v1/transport/mtr/bus/getSchedule", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: "zh", routeName: s.route })
+    });
+    if (!res.ok) throw new Error("mtrb schedule");
+    const payload = await res.json();
+    const stops = payload.busStop || [];
+    const byDir = { O: [], I: [] };
+    stops.forEach((st) => {
+      const id = st.busStopId || "";
+      const isDown = /-D/i.test(id);
+      const dir = isDown ? "I" : "O";
+      byDir[dir].push({ stop: id, seq: byDir[dir].length + 1, name: id });
+    });
+    if (!byDir.O.length && !byDir.I.length) {
+      stops.forEach((st, idx) => byDir.O.push({ stop: st.busStopId, seq: idx + 1, name: st.busStopId }));
     }
+    state.stops.search = byDir;
+    state.meta.search = { O: { orig: s.origLabel, dest: s.destLabel }, I: { orig: s.destLabel, dest: s.origLabel } };
+    state._mtrScheduleCache = { route: s.route, payload };
+    if (!byDir[s.bound] || !byDir[s.bound].length) state.search.bound = byDir.O.length ? "O" : "I";
+  } else if (s.co === "gmb") {
+    if (!s.region || !s.route) { state.stops.search = {}; return; }
+    const detail = await gmbFetch("https://data.etagmb.gov.hk/route/" + encodeURIComponent(s.region) + "/" + encodeURIComponent(s.route));
+    const variants = detail.data || [];
+    let chosen = variants[0];
+    if (s.routeId) chosen = variants.find((v) => String(v.route_id) === String(s.routeId)) || chosen;
+    if (!chosen) throw new Error("no gmb variant");
+    state.search.routeId = chosen.route_id;
+    state.stops.search = {};
+    state.meta.search = {};
+    for (const d of (chosen.directions || [])) {
+      const seq = String(d.route_seq);
+      const stopPayload = await gmbFetch("https://data.etagmb.gov.hk/route-stop/" + chosen.route_id + "/" + d.route_seq);
+      const list = ((stopPayload.data && stopPayload.data.route_stops) || []).map((x) => ({
+        stop: String(x.stop_id), seq: x.stop_seq, name: shortName(x.name_tc)
+      }));
+      state.stops.search[seq] = list;
+      state.meta.search[seq] = { orig: d.orig_tc || "", dest: d.dest_tc || "" };
+    }
+    const keys = Object.keys(state.stops.search);
+    if (!keys.length) throw new Error("no gmb stops");
+    if (!keys.includes(String(s.bound))) state.search.bound = keys[0];
+  }
 
-    document.getElementById("refresh").addEventListener("click", () => loadEta());
+  const list = (state.stops.search && state.stops.search[state.search.bound]) || [];
+  if (list.length && (!state.search.stop || !list.some((x) => x.stop === state.search.stop))) {
+    state.search.stop = list[0].stop;
+  }
+  saveSearch();
+}
+
+function etaPanelHtml(rows, dest, now, loading) {
+  if (loading) return '<div class="skeleton"></div>';
+  if (!rows.length) return '<p class="dest">往 ' + escapeHtml(dest || "—") + '</p><div class="empty">暫時沒有班次</div>';
+  const view = describe(rows[0], now);
+  const tone = view.tone === "soon" ? " soon" : view.tone === "sched" ? " sched" : "";
+  const follow = rows.slice(1, 4).map((row) => {
+    const item = describe(row, now);
+    const label = item.unit ? item.primary + " " + item.unit : item.primary;
+    return "<li><span>" + escapeHtml(item.clock) + "</span><span>" + escapeHtml(label) + "</span></li>";
+  }).join("");
+  return (
+    '<p class="dest">往 ' + escapeHtml(dest || "—") + "</p>" +
+    '<div class="eta-hero"><p class="mins' + tone + '">' + escapeHtml(view.primary) + "</p>" +
+    '<div class="aside">' + (view.unit ? '<p class="unit">' + view.unit + "</p>" : "") +
+    '<p class="hm">' + escapeHtml(view.clock) + "</p></div></div>" +
+    '<span class="pill' + tone + '">' + escapeHtml(view.kind) + "</span>" +
+    (follow ? '<ul class="list">' + follow + "</ul>" : "")
+  );
+}
+
+function fixedCardHtml(key, now) {
+  const cfg = FIXED[key];
+  const sel = state.selection[key];
+  const list = (state.stops[key] && state.stops[key][sel.bound]) || [];
+  const options = list.map((s) => '<option value="' + escapeHtml(s.stop) + '"' + (s.stop === sel.stop ? " selected" : "") + ">" + escapeHtml(s.seq + ". " + s.name) + "</option>").join("");
+  const meta = state.meta[key] && state.meta[key][sel.bound];
+  const dest = meta ? shortName(meta.dest) : "";
+  const rows = (state.eta[key] || []).filter((r) => r.route === cfg.route && r.dir === sel.bound).sort((a, b) => a.eta_seq - b.eta_seq);
+  return (
+    '<div class="route-head"><span class="route-badge">' + cfg.route + '</span>' +
+    '<div class="bound-toggle" role="group">' +
+    '<button type="button" class="bound-btn" data-bound="I" aria-pressed="' + (sel.bound === "I") + '">' + escapeHtml(boundLabel(key, "I")) + "</button>" +
+    '<button type="button" class="bound-btn" data-bound="O" aria-pressed="' + (sel.bound === "O") + '">' + escapeHtml(boundLabel(key, "O")) + "</button>" +
+    "</div></div>" +
+    '<div class="stop-row"><p class="stop-label">站點</p><select class="stop-select" data-role="stop">' + (options || '<option value="">載入中…</option>') + "</select></div>" +
+    '<div class="eta-panel">' + etaPanelHtml(rows, dest, now, !state.ready || state.loadingEta) + "</div>"
+  );
+}
+
+function coLabel(co) {
+  return { kmb: "九巴", ctb: "城巴", mtrb: "港鐵巴", gmb: "小巴" }[co] || co;
+}
+function coClass(co) {
+  return { kmb: "co-kmb", ctb: "co-ctb", mtrb: "co-mtrb", gmb: "co-gmb" }[co] || "";
+}
+function badgeClass(co) {
+  return { ctb: " route-badge ctb", mtrb: " route-badge mtrb", gmb: " route-badge gmb" }[co] || "route-badge";
+}
+
+function searchCardHtml(now) {
+  const s = state.search;
+  const hasRoute = !!(s.co && s.route);
+  const list = (state.stops.search && state.stops.search[s.bound]) || [];
+  const options = list.map((x) => '<option value="' + escapeHtml(x.stop) + '"' + (x.stop === s.stop ? " selected" : "") + ">" + escapeHtml(x.seq + ". " + x.name) + "</option>").join("");
+  const meta = state.meta.search && state.meta.search[s.bound];
+  const dest = meta ? shortName(meta.dest) : shortName(s.destLabel);
+  const rows = (state.eta.search || []).slice().sort((a, b) => (a.eta_seq || 0) - (b.eta_seq || 0));
+  const bCls = hasRoute ? badgeClass(s.co) : "route-badge search";
+  const badgeText = hasRoute ? s.route : "搜尋";
+  const boundKeys = hasRoute ? Object.keys(state.stops.search || {}) : [];
+  let boundHtml = "";
+  if (hasRoute && boundKeys.length) {
+    boundHtml = '<div class="bound-toggle" role="group">' + boundKeys.map((bk) => {
+      const m = state.meta.search && state.meta.search[bk];
+      const label = m ? "往" + shortName(m.dest) : ("方向 " + bk);
+      return '<button type="button" class="bound-btn" data-bound="' + escapeHtml(bk) + '" aria-pressed="' + (String(s.bound) === String(bk)) + '">' + escapeHtml(label) + "</button>";
+    }).join("") + "</div>";
+  } else if (!hasRoute) {
+    boundHtml = '<span style="font-size:.7rem;color:var(--muted)">輸入路線號碼</span>';
+  }
+  let hitsHtml = "";
+  if (state.searchHits.length) {
+    hitsHtml = '<div class="search-results">' + state.searchHits.map((h, i) => {
+      let text;
+      if (h.co === "gmb") text = h.route + " · 小巴 · " + (h.regionLabel || "") + " · " + shortName(h.orig) + " → " + shortName(h.dest);
+      else if (h.co === "mtrb") text = h.route + " · " + shortName(h.nameZh || (h.orig + " → " + h.dest));
+      else text = h.route + " · " + shortName(h.orig) + " → " + shortName(h.dest);
+      return '<button type="button" data-hit="' + i + '"><span class="co ' + coClass(h.co) + '">' + coLabel(h.co) + "</span>" + escapeHtml(text) + "</button>";
+    }).join("") + "</div>";
+  }
+  return (
+    '<div class="route-head"><span class="' + bCls.trim() + '">' + escapeHtml(badgeText) + "</span>" + boundHtml + "</div>" +
+    '<div class="search-row"><p class="stop-label">搜尋（九巴／城巴／港鐵巴士／綠色小巴）</p>' +
+    '<div class="search-wrap"><input class="search-input" id="route-search" type="search" placeholder="例如 74X、K17、20A、962" />' +
+    '<button type="button" class="search-btn" id="route-search-btn">搜尋</button></div>' + hitsHtml + "</div>" +
+    (hasRoute ? '<div class="stop-row"><p class="stop-label">站點</p><select class="stop-select" data-role="stop">' + (options || '<option value="">載入站點…</option>') + "</select></div>" : "") +
+    '<div class="eta-panel">' + (hasRoute ? etaPanelHtml(rows, dest, now, state.loadingEta) : '<div class="empty">輸入路線號碼後選擇結果</div>') + "</div>"
+  );
+}
+
+function render() {
+  const now = Date.now();
+  clockEl.textContent = hkParts(new Date(now)).hm;
+  ["73x", "75x", "271"].forEach((key) => { document.getElementById("card-" + key).innerHTML = fixedCardHtml(key, now); });
+  document.getElementById("card-search").innerHTML = searchCardHtml(now);
+  updatedEl.textContent = state.updated ? hkParts(new Date(state.updated)).hms : "—";
+  alertEl.hidden = !state.error;
+  alertEl.textContent = state.error;
+  bindEvents();
+}
+
+function bindEvents() {
+  ["73x", "75x", "271"].forEach((key) => {
+    const card = document.getElementById("card-" + key);
+    card.querySelectorAll(".bound-btn").forEach((btn) => {
+      btn.onclick = () => {
+        if (state.selection[key].bound === btn.dataset.bound) return;
+        state.selection[key].bound = btn.dataset.bound;
+        ensureSel(key); saveSel(); loadAllEta();
+      };
+    });
+    const sel = card.querySelector('select[data-role="stop"]');
+    if (sel) sel.onchange = () => { state.selection[key].stop = sel.value; saveSel(); loadAllEta(); };
+  });
+
+  const searchCard = document.getElementById("card-search");
+  const input = searchCard.querySelector("#route-search");
+  const sbtn = searchCard.querySelector("#route-search-btn");
+  const doSearch = async () => {
+    const q = ((input && input.value) || "").trim();
+    try {
+      await ensureCatalog();
+      let hits = searchRoutes(q);
+      const gmbHits = await probeGmbAllRegions(q);
+      // 小巴放前面方便辨識
+      hits = gmbHits.concat(hits.filter((h) => h.co !== "gmb"));
+      state.searchHits = hits.slice(0, 50);
+      state.error = state.searchHits.length ? "" : ("找不到路線「" + q + "」。可試 74X、K17、20A。");
+    } catch (e) {
+      state.error = "載入路線清單失敗，請稍後再試。";
+    }
     render();
-    init();
-    setInterval(() => {
-      clockEl.textContent = hkParts(new Date()).hm;
-      if (state.ready && !state.loadingEta) {
-        const now = Date.now();
-        ["73x", "75x", "271"].forEach((key) => {
-          const panel = document.querySelector("#card-" + key + " .eta-panel");
-          if (panel) panel.innerHTML = etaHtml(key, now);
-        });
+    const input2 = document.querySelector("#route-search");
+    if (input2) input2.value = q;
+  };
+  if (sbtn) sbtn.onclick = doSearch;
+  if (input) input.onkeydown = (e) => { if (e.key === "Enter") doSearch(); };
+
+  searchCard.querySelectorAll("[data-hit]").forEach((btn) => {
+    btn.onclick = async () => {
+      const hit = state.searchHits[Number(btn.dataset.hit)];
+      if (!hit) return;
+      state.search = {
+        co: hit.co, route: hit.route,
+        bound: hit.bound || (hit.co === "gmb" ? "1" : "O"),
+        serviceType: hit.serviceType || "1", stop: null,
+        origLabel: hit.orig, destLabel: hit.dest || hit.nameZh,
+        routeId: hit.routeId || null, region: hit.region || null
+      };
+      state.searchHits = [];
+      saveSearch();
+      state.loadingEta = true; render();
+      try {
+        await loadSearchStops();
+        await loadSearchEta();
+        state.error = "";
+      } catch (e) {
+        state.error = "載入此路線失敗。";
       }
-    }, 1000);
-    setInterval(() => { if (state.ready) loadEta(); }, 30000);
-  </script>
+      state.loadingEta = false; render();
+    };
+  });
+
+  searchCard.querySelectorAll(".bound-btn").forEach((btn) => {
+    btn.onclick = async () => {
+      if (String(state.search.bound) === String(btn.dataset.bound)) return;
+      state.search.bound = btn.dataset.bound;
+      const list = (state.stops.search && state.stops.search[state.search.bound]) || [];
+      if (list.length) state.search.stop = list[0].stop;
+      saveSearch();
+      await loadSearchEta(); render();
+    };
+  });
+  const ssel = searchCard.querySelector('select[data-role="stop"]');
+  if (ssel) ssel.onchange = async () => { state.search.stop = ssel.value; saveSearch(); await loadSearchEta(); render(); };
+}
+
+async function loadSearchEta() {
+  const s = state.search;
+  try {
+    if (s.co === "kmb") {
+      if (!s.stop) { state.eta.search = []; return; }
+      const payload = await fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/eta/" + s.stop + "/" + s.route + "/" + (s.serviceType || "1"));
+      state.eta.search = (payload.data || []).filter((r) => r.dir === s.bound);
+    } else if (s.co === "ctb") {
+      if (!s.stop) { state.eta.search = []; return; }
+      const payload = await fetchJson("https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/" + s.stop + "/" + s.route);
+      state.eta.search = (payload.data || []).filter((r) => r.dir === s.bound);
+    } else if (s.co === "mtrb") {
+      if (!s.route || !s.stop) { state.eta.search = []; return; }
+      const res = await fetch("https://rt.data.gov.hk/v1/transport/mtr/bus/getSchedule", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: "zh", routeName: s.route })
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const payload = await res.json();
+      state._mtrScheduleCache = { route: s.route, payload };
+      const stopBlock = (payload.busStop || []).find((x) => x.busStopId === s.stop);
+      const buses = (stopBlock && stopBlock.bus) || [];
+      state.eta.search = buses.map((b, i) => {
+        const sec = Number(b.departureTimeInSecond);
+        const sched = String(b.isScheduled) === "1";
+        const text = (b.departureTimeText || "").trim();
+        let minsText = "—", unit = "", soon = false, clock = "—";
+        if (text.includes("即將") || text.includes("已離開") || (Number.isFinite(sec) && sec < 60)) {
+          minsText = "即將"; soon = true;
+        } else if (Number.isFinite(sec) && sec < 108000) {
+          minsText = String(Math.max(1, Math.round(sec / 60)));
+          unit = "分鐘";
+          clock = hkParts(new Date(Date.now() + sec * 1000)).hm;
+        } else if (text) {
+          minsText = text.replace(/\s*分鐘/, "");
+          unit = text.includes("分鐘") ? "分鐘" : "";
+        }
+        return { eta_seq: i + 1, rmk_tc: sched ? "時間表" : "實時", _minsText: minsText, _unit: unit, _clock: clock, _soon: soon, _sched: sched, eta: Number.isFinite(sec) && sec < 108000 ? new Date(Date.now() + sec * 1000).toISOString() : null };
+      });
+    } else if (s.co === "gmb") {
+      if (!s.routeId || !s.stop) { state.eta.search = []; return; }
+      const payload = await gmbFetch("https://data.etagmb.gov.hk/eta/route-stop/" + s.routeId + "/" + s.stop);
+      const boundSeq = Number(s.bound) || 1;
+      let blocks = (payload.data || []).filter((x) => x.enabled !== false);
+      const sameDir = blocks.filter((x) => Number(x.route_seq) === boundSeq);
+      if (sameDir.length) blocks = sameDir;
+      const etas = [];
+      blocks.forEach((block) => {
+        (block.eta || []).forEach((e) => {
+          etas.push({
+            eta: e.timestamp, eta_seq: e.eta_seq, rmk_tc: e.remarks_tc || "",
+            _sched: !!(e.remarks_tc && (String(e.remarks_tc).includes("未開出") || e.remarks_en === "Scheduled"))
+          });
+        });
+      });
+      state.eta.search = etas.sort((a, b) => (a.eta_seq || 0) - (b.eta_seq || 0));
+    } else {
+      state.eta.search = [];
+    }
+  } catch (_) {
+    state.eta.search = [];
+  }
+}
+
+async function loadAllEta() {
+  state.loadingEta = true; render();
+  try {
+    const fixed = await Promise.all(["73x", "75x", "271"].map(async (key) => {
+      const cfg = FIXED[key];
+      const stop = state.selection[key].stop;
+      if (!stop) return { key, rows: [], ts: null };
+      const payload = await fetchJson("https://data.etabus.gov.hk/v1/transport/kmb/eta/" + stop + "/" + cfg.route + "/" + cfg.serviceType);
+      return { key, rows: payload.data || [], ts: (payload.data && payload.data[0] && payload.data[0].data_timestamp) || payload.generated_timestamp || null };
+    }));
+    fixed.forEach((r) => { state.eta[r.key] = r.rows; });
+    await loadSearchEta();
+    const stamps = fixed.map((r) => r.ts).filter(Boolean).map((t) => new Date(t).getTime());
+    state.updated = stamps.length ? new Date(Math.max(...stamps)).toISOString() : new Date().toISOString();
+    state.error = "";
+  } catch (err) {
+    state.error = "暫時連不到到站資料，顯示可能不是最新。";
+  }
+  state.loadingEta = false; render();
+}
+
+async function init() {
+  try {
+    await Promise.all([loadRouteMeta("73x"), loadRouteMeta("75x"), loadRouteMeta("271")]);
+    await Promise.all([loadRouteStops("73x"), loadRouteStops("75x"), loadRouteStops("271")]);
+    if (state.search.co && state.search.route) await loadSearchStops();
+    state.ready = true; state.error = "";
+  } catch (err) {
+    state.error = "無法載入路線／站點資料，請稍後再試。";
+    state.ready = true;
+  }
+  render();
+  await loadAllEta();
+  ensureCatalog().catch(() => {});
+}
+
+document.getElementById("refresh").addEventListener("click", () => loadAllEta());
+render();
+init();
+setInterval(() => {
+  clockEl.textContent = hkParts(new Date()).hm;
+  if (!state.ready || state.loadingEta) return;
+  const now = Date.now();
+  ["73x", "75x", "271"].forEach((key) => {
+    const panel = document.querySelector("#card-" + key + " .eta-panel");
+    if (!panel) return;
+    const cfg = FIXED[key]; const sel = state.selection[key];
+    const meta = state.meta[key] && state.meta[key][sel.bound];
+    const rows = (state.eta[key] || []).filter((r) => r.route === cfg.route && r.dir === sel.bound).sort((a, b) => a.eta_seq - b.eta_seq);
+    panel.innerHTML = etaPanelHtml(rows, meta ? shortName(meta.dest) : "", now, false);
+  });
+  const sp = document.querySelector("#card-search .eta-panel");
+  if (sp && state.search.route) {
+    const meta = state.meta.search && state.meta.search[state.search.bound];
+    const rows = (state.eta.search || []).slice().sort((a, b) => (a.eta_seq || 0) - (b.eta_seq || 0));
+    sp.innerHTML = etaPanelHtml(rows, meta ? shortName(meta.dest) : "", now, false);
+  }
+}, 1000);
+setInterval(() => { if (state.ready) loadAllEta(); }, 30000);
+</script>
 </body>
 </html>
