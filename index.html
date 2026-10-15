@@ -572,11 +572,13 @@ function bindEvents() {
       btn.onclick = () => {
         if (state.selection[key].bound === btn.dataset.bound) return;
         state.selection[key].bound = btn.dataset.bound;
-        ensureSel(key); saveSel(); loadAllEta();
+        ensureSel(key); saveSel();
+        render();
+        loadAllEta({ soft: true });
       };
     });
     const sel = card.querySelector('select[data-role="stop"]');
-    if (sel) sel.onchange = () => { state.selection[key].stop = sel.value; saveSel(); loadAllEta(); };
+    if (sel) sel.onchange = () => { state.selection[key].stop = sel.value; saveSel(); loadAllEta({ soft: true }); };
   });
 
   const searchCard = document.getElementById("card-search");
@@ -705,8 +707,37 @@ async function loadSearchEta() {
   }
 }
 
-async function loadAllEta() {
-  state.loadingEta = true; render();
+function updateEtaPanelsOnly() {
+  const now = Date.now();
+  ["73x", "75x", "271"].forEach((key) => {
+    const panel = document.querySelector("#card-" + key + " .eta-panel");
+    if (!panel) return;
+    const cfg = FIXED[key];
+    const sel = state.selection[key];
+    const meta = state.meta[key] && state.meta[key][sel.bound];
+    const rows = (state.eta[key] || []).filter((r) => r.route === cfg.route && r.dir === sel.bound).sort((a, b) => a.eta_seq - b.eta_seq);
+    panel.innerHTML = etaPanelHtml(rows, meta ? shortName(meta.dest) : "", now, false);
+  });
+  const sp = document.querySelector("#card-search .eta-panel");
+  if (sp && state.search.route) {
+    const meta = state.meta.search && state.meta.search[state.search.bound];
+    const rows = (state.eta.search || []).slice().sort((a, b) => (a.eta_seq || 0) - (b.eta_seq || 0));
+    sp.innerHTML = etaPanelHtml(rows, meta ? shortName(meta.dest) : "", now, false);
+  }
+  if (state.updated) updatedEl.textContent = hkParts(new Date(state.updated)).hms;
+  clockEl.textContent = hkParts(new Date(now)).hm;
+  alertEl.hidden = !state.error;
+  alertEl.textContent = state.error;
+}
+
+async function loadAllEta(opts) {
+  const soft = !opts || opts.soft !== false;
+  // 首次或強制：可全頁；定時更新只改 ETA 區塊，避免畫面彈跳
+  const hasData = ["73x", "75x", "271"].some((k) => (state.eta[k] || []).length);
+  if (!soft || !hasData) {
+    state.loadingEta = true;
+    render();
+  }
   try {
     const fixed = await Promise.all(["73x", "75x", "271"].map(async (key) => {
       const cfg = FIXED[key];
@@ -723,7 +754,12 @@ async function loadAllEta() {
   } catch (err) {
     state.error = "暫時連不到到站資料，顯示可能不是最新。";
   }
-  state.loadingEta = false; render();
+  state.loadingEta = false;
+  if (soft && hasData && document.querySelector("#card-73x .eta-panel")) {
+    updateEtaPanelsOnly();
+  } else {
+    render();
+  }
 }
 
 async function init() {
@@ -745,25 +781,13 @@ document.getElementById("refresh").addEventListener("click", () => loadAllEta())
 render();
 init();
 setInterval(() => {
-  clockEl.textContent = hkParts(new Date()).hm;
-  if (!state.ready || state.loadingEta) return;
-  const now = Date.now();
-  ["73x", "75x", "271"].forEach((key) => {
-    const panel = document.querySelector("#card-" + key + " .eta-panel");
-    if (!panel) return;
-    const cfg = FIXED[key]; const sel = state.selection[key];
-    const meta = state.meta[key] && state.meta[key][sel.bound];
-    const rows = (state.eta[key] || []).filter((r) => r.route === cfg.route && r.dir === sel.bound).sort((a, b) => a.eta_seq - b.eta_seq);
-    panel.innerHTML = etaPanelHtml(rows, meta ? shortName(meta.dest) : "", now, false);
-  });
-  const sp = document.querySelector("#card-search .eta-panel");
-  if (sp && state.search.route) {
-    const meta = state.meta.search && state.meta.search[state.search.bound];
-    const rows = (state.eta.search || []).slice().sort((a, b) => (a.eta_seq || 0) - (b.eta_seq || 0));
-    sp.innerHTML = etaPanelHtml(rows, meta ? shortName(meta.dest) : "", now, false);
+  if (!state.ready || state.loadingEta) {
+    clockEl.textContent = hkParts(new Date()).hm;
+    return;
   }
+  updateEtaPanelsOnly();
 }, 1000);
-setInterval(() => { if (state.ready) loadAllEta(); }, 30000);
+setInterval(() => { if (state.ready) loadAllEta({ soft: true }); }, 30000);
 </script>
 </body>
 </html>
